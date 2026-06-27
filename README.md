@@ -1,41 +1,14 @@
-# admin-ui
+# Platform Admin UI
 
-Internal **operations console** for Platform V2 — `super_admin` only.
+Internal ops console for Platform V2. **Not** customer-facing — use [platform-ui](../platform-ui).
 
-Separate app and ingress from customer `platform-ui`.
+| Talks to | Port | Purpose |
+|----------|------|---------|
+| [compliance-engine](../compliance-engine) | 8090 | `/v1/admin/*` (super_admin only) |
 
-## API
+Runs on **http://localhost:5174** (customer UI uses 5173).
 
-Calls **compliance-engine** admin routes:
-
-- `/v1/admin/tenants`
-- `/v1/admin/users`
-- `/v1/admin/scans` (debug, failed jobs, DLQ)
-- `/v1/admin/queue`
-
-## Auth
-
-JWT — **`super_admin` only**. Other roles must use `platform-ui`.
-
-## Related repos
-
-| Repo | Role |
-|------|------|
-| **compliance-engine** | Backend API + admin routes |
-| **admin-ui** | **This repo** |
-| **platform-ui** | Customer dashboard |
-
-## Planning
-
-**infra-state-docs/new arch/docs/** — `PLATFORM_ARCHITECTURE.md` (separate ALB / ingress)
-
-Reference patterns: legacy `compliance-admin-ui` (ideas only).
-
-## Stack (TBD at implementation)
-
-Likely: React + TypeScript + Vite (match platform-ui).
-
-## Local dev (after scaffold)
+## Setup
 
 ```bash
 cp .env.example .env.local
@@ -43,6 +16,26 @@ npm install
 npm run dev
 ```
 
-## Status
+### Auth
 
-Initial repo scaffold — Phase 4. Ops can use API/kubectl until then.
+- **Supabase:** same project as platform-ui; membership must have `super_admin` role
+- **Dev headers:** `VITE_AUTH_MODE=dev_headers` + `VITE_DEV_ROLE=super_admin`
+
+### Promote a user to super_admin
+
+```bash
+cd compliance-engine
+python scripts/promote_membership_role.py \
+  --auth-subject YOUR_SUPABASE_USER_UID \
+  --role super_admin
+```
+
+## Routes
+
+| Route | Page |
+|-------|------|
+| `/login` | Sign in |
+| `/` | Platform overview (queues, tenant count) |
+| `/tenants` | Tenant list + create |
+| `/tenants/:id` | Memberships + suspend |
+| `/ops` | Failed / recent scans (cross-tenant) |
