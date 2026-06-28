@@ -35,6 +35,27 @@ function parseApiError(text: string, fallback: string): string {
   return text || fallback;
 }
 
+function getApiBase(): string {
+  const raw = (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
+  if (!raw) {
+    throw new ApiError(
+      "VITE_API_URL is not configured. Set it in Vercel Environment Variables and redeploy.",
+      0,
+    );
+  }
+  const base = raw.replace(/\/$/, "");
+  if (typeof window !== "undefined") {
+    const uiOrigin = window.location.origin.replace(/\/$/, "");
+    if (base === uiOrigin) {
+      throw new ApiError(
+        "VITE_API_URL must be your API host (e.g. https://api.drantiq.ai), not the UI domain.",
+        0,
+      );
+    }
+  }
+  return base;
+}
+
 async function request<T>(
   auth: AuthHeaders,
   path: string,
@@ -44,7 +65,7 @@ async function request<T>(
     params?: Record<string, string | number | boolean | undefined>;
   },
 ): Promise<T> {
-  const base = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+  const base = getApiBase();
   const url = new URL(path, `${base}/`);
   if (options?.params) {
     for (const [k, v] of Object.entries(options.params)) {
@@ -75,8 +96,7 @@ async function request<T>(
 }
 
 export function checkHealth(): Promise<{ status: string }> {
-  const base = import.meta.env.VITE_API_URL.replace(/\/$/, "");
-  return fetch(`${base}/health`).then((r) => r.json());
+  return fetch(`${getApiBase()}/health`).then((r) => r.json());
 }
 
 export function getMe(auth: AuthHeaders): Promise<MeResponse> {

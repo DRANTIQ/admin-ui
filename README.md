@@ -30,6 +30,23 @@ python scripts/promote_membership_role.py \
   --role super_admin
 ```
 
+## Deploy to Vercel (admin.drantiq.ai)
+
+Set **Environment Variables** on the Vercel project, then redeploy (Vite bakes env at build time):
+
+| Variable | Example |
+|----------|---------|
+| `VITE_API_URL` | `https://api.drantiq.ai` — **not** `https://admin.drantiq.ai` |
+| `VITE_AUTH_MODE` | `supabase` |
+| `VITE_SUPABASE_URL` | `https://<project-ref>.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key |
+
+`vercel.json` in this repo enables SPA routing for `/login`, `/tenants/:id`, etc.
+
+Supabase **Site URL:** `https://admin.drantiq.ai` · **Redirect URLs:** `https://admin.drantiq.ai/**`
+
+Only users with `super_admin` membership can use this UI after login.
+
 ## Routes
 
 | Route | Page |
