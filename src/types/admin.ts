@@ -51,3 +51,27 @@ export type AdminOverview = {
   events_queue_depth: number;
   api_status: string;
 };
+
+export type Integration = {
+  id: string;
+  tenant_id: string;
+  provider: string;
+  account_id: string;
+  role_arn: string;
+  regions: string[];
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AdminScanCreateResponse = {
+  id: string;
+  tenant_id: string;
+  integration_id: string;
+  status: string;
+  trace_id: string;
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};

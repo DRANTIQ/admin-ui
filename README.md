@@ -11,7 +11,7 @@ Runs on **http://localhost:5174** (customer UI uses 5173).
 ## Setup
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env
 npm install
 npm run dev
 ```
