@@ -2,6 +2,7 @@ import type {
   AdminOverview,
   AdminScan,
   AdminScanCreateResponse,
+  AdminScanDetail,
   Integration,
   MeResponse,
   Membership,
@@ -161,6 +162,14 @@ export function listTenantScans(
   limit = 20,
 ): Promise<AdminScan[]> {
   return request(auth, `/v1/admin/tenants/${tenantId}/scans`, { params: { limit } });
+}
+
+export function getTenantScanDetail(
+  auth: AuthHeaders,
+  tenantId: string,
+  scanId: string,
+): Promise<AdminScanDetail> {
+  return request(auth, `/v1/admin/tenants/${tenantId}/scans/${scanId}`);
 }
 
 export function createTenantScan(

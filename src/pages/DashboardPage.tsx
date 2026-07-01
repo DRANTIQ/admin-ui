@@ -32,16 +32,25 @@ export function DashboardPage() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="API health" value={health} />
         <StatCard label="Tenants" value={overview ? String(overview.tenant_count) : "…"} />
         <StatCard label="Failed scans" value={overview ? String(overview.failed_scan_count) : "…"} />
         <StatCard label="Active scans" value={overview ? String(overview.active_scan_count) : "…"} />
-        <StatCard label="Collect queue" value={overview ? String(overview.collect_queue_depth) : "…"} />
+        <StatCard label="AWS collect queue" value={overview ? String(overview.collect_queue_depth) : "…"} />
+        <StatCard
+          label="Azure collect queue"
+          value={overview ? String(overview.collect_azure_queue_depth ?? "—") : "…"}
+        />
         <StatCard label="Events queue" value={overview ? String(overview.events_queue_depth) : "…"} />
+        <StatCard label="Policy queue" value={overview ? String(overview.policy_queue_depth ?? "—") : "…"} />
       </div>
 
       <p className="text-sm text-slate-400">
+        <Link to="/ops" className="text-violet-400 hover:underline">
+          Triage failed scans in Ops →
+        </Link>
+        {" · "}
         <Link to="/tenants" className="text-violet-400 hover:underline">
           Manage tenants →
         </Link>

@@ -12,12 +12,14 @@ import {
 } from "../lib/api";
 import { supabaseAuthIssuer } from "../lib/supabase";
 import { formatDate } from "../lib/format";
+import {
+  integrationCredentialLine,
+  integrationLabel,
+  providerBadge,
+} from "../lib/integrationDisplay";
+import { scanErrorSummary } from "../lib/scanDiagnostics";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import type { AdminScan, Integration, Membership, Tenant } from "../types/admin";
-
-function integrationLabel(integration: Integration): string {
-  return `AWS ${integration.account_id} (${integration.status})`;
-}
 
 export function TenantDetailPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
@@ -112,7 +114,7 @@ export function TenantDetailPage() {
 
   async function handleRunScan() {
     if (!tenantId || !selectedIntegrationId) {
-      setError("Select an AWS integration to scan");
+      setError("Select a cloud integration to scan");
       return;
     }
     setRunningScan(true);
@@ -199,16 +201,28 @@ export function TenantDetailPage() {
           {error}
         </div>
       )}
-      {scanResult && (
+      {scanResult && latestScan && (
         <p className="rounded-lg border border-emerald-900 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-300">
           {scanResult}{" "}
+          <Link
+            to={`/tenants/${tenantId}/scans/${latestScan.id}`}
+            className="font-medium text-emerald-200 underline hover:text-white"
+          >
+            View scan
+          </Link>
+          {" · "}
           <button
             type="button"
             onClick={() => navigate("/ops")}
             className="font-medium text-emerald-200 underline hover:text-white"
           >
-            View in Ops
+            Ops
           </button>
+        </p>
+      )}
+      {scanResult && !latestScan && (
+        <p className="rounded-lg border border-emerald-900 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-300">
+          {scanResult}
         </p>
       )}
 
@@ -238,7 +252,7 @@ export function TenantDetailPage() {
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-medium text-white">AWS integrations</h2>
+          <h2 className="text-lg font-medium text-white">Cloud integrations</h2>
           {integrations.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
               <select
@@ -277,9 +291,10 @@ export function TenantDetailPage() {
           <table className="min-w-full text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900 text-xs uppercase text-slate-500">
               <tr>
+                <th className="px-4 py-3">Provider</th>
                 <th className="px-4 py-3">Account</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Regions</th>
+                <th className="px-4 py-3">Credentials</th>
+                <th className="px-4 py-3">Regions / locations</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Created</th>
               </tr>
@@ -287,15 +302,18 @@ export function TenantDetailPage() {
             <tbody className="divide-y divide-slate-800">
               {integrations.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                     No integrations registered for this tenant
                   </td>
                 </tr>
               )}
               {integrations.map((integration) => (
                 <tr key={integration.id}>
+                  <td className="px-4 py-3 text-slate-300">{providerBadge(integration.provider)}</td>
                   <td className="px-4 py-3 font-mono text-slate-300">{integration.account_id}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{integration.role_arn}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-400">
+                    {integrationCredentialLine(integration)}
+                  </td>
                   <td className="px-4 py-3 text-slate-400">{integration.regions.join(", ")}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={integration.status} />
@@ -320,7 +338,9 @@ export function TenantDetailPage() {
             <thead className="border-b border-slate-800 bg-slate-900 text-xs uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Scan</th>
+                <th className="px-4 py-3">Provider</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Error</th>
                 <th className="px-4 py-3">Started</th>
                 <th className="px-4 py-3">Completed</th>
               </tr>
@@ -328,21 +348,43 @@ export function TenantDetailPage() {
             <tbody className="divide-y divide-slate-800">
               {scans.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                     No scans yet
                   </td>
                 </tr>
               )}
-              {scans.map((scan) => (
-                <tr key={scan.id}>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{scan.id}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={scan.status} />
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">{formatDate(scan.started_at)}</td>
-                  <td className="px-4 py-3 text-slate-500">{formatDate(scan.completed_at)}</td>
-                </tr>
-              ))}
+              {scans.map((scan) => {
+                const err = scanErrorSummary(scan);
+                return (
+                  <tr key={scan.id}>
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/tenants/${tenantId}/scans/${scan.id}`}
+                        className="font-mono text-xs text-violet-400 hover:underline"
+                      >
+                        {scan.id}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-slate-300">
+                      {scan.provider ? providerBadge(scan.provider) : "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={scan.status} />
+                    </td>
+                    <td className="max-w-xs px-4 py-3 text-xs text-red-300">
+                      {err ? (
+                        <span className="line-clamp-2" title={err}>
+                          {err}
+                        </span>
+                      ) : (
+                        <span className="text-slate-600">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500">{formatDate(scan.started_at)}</td>
+                    <td className="px-4 py-3 text-slate-500">{formatDate(scan.completed_at)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

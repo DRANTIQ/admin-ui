@@ -35,12 +35,32 @@ export type AdminScan = {
   tenant_name: string;
   tenant_slug: string;
   integration_id: string;
+  provider?: string | null;
+  account_id?: string | null;
   status: string;
   trace_id: string;
+  error?: Record<string, unknown> | null;
+  collection_status?: string | null;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type AdminScanTimelineEvent = {
+  event_type: string;
+  created_at: string;
+  payload?: Record<string, unknown> | null;
+};
+
+export type AdminScanDetail = AdminScan & {
+  collection_error?: Record<string, unknown> | null;
+  resource_count?: number | null;
+  manifest_s3_uri?: string | null;
+  role_arn?: string | null;
+  azure_tenant_id?: string | null;
+  azure_client_id?: string | null;
+  timeline: AdminScanTimelineEvent[];
 };
 
 export type AdminOverview = {
@@ -48,7 +68,9 @@ export type AdminOverview = {
   failed_scan_count: number;
   active_scan_count: number;
   collect_queue_depth: number;
+  collect_azure_queue_depth?: number;
   events_queue_depth: number;
+  policy_queue_depth?: number;
   api_status: string;
 };
 
@@ -57,7 +79,9 @@ export type Integration = {
   tenant_id: string;
   provider: string;
   account_id: string;
-  role_arn: string;
+  role_arn?: string | null;
+  azure_tenant_id?: string | null;
+  azure_client_id?: string | null;
   regions: string[];
   status: string;
   created_at: string;
