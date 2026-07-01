@@ -74,6 +74,32 @@ export type AdminOverview = {
   api_status: string;
 };
 
+export type FunnelStep = {
+  key: string;
+  label: string;
+  description: string;
+  count: number;
+  conversion_rate: number | null;
+};
+
+export type TenantFunnelRow = {
+  tenant_id: string;
+  tenant_name: string;
+  tenant_slug: string;
+  plan: string;
+  status: string;
+  stage: string;
+  integration_count: number;
+  scan_count: number;
+  member_count: number;
+  created_at: string;
+};
+
+export type ProductFunnel = {
+  steps: FunnelStep[];
+  tenants: TenantFunnelRow[];
+};
+
 export type Integration = {
   id: string;
   tenant_id: string;

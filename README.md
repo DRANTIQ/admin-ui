@@ -56,3 +56,11 @@ Only users with `super_admin` membership can use this UI after login.
 | `/tenants` | Tenant list + create |
 | `/tenants/:id` | Memberships + suspend |
 | `/ops` | Failed / recent scans (cross-tenant) |
+
+## Ops runbooks
+
+Azure scan **Completed with errors** and `Microsoft.Security` / Defender messages → [compliance-engine/docs/AZURE_SCAN_TROUBLESHOOTING.md](../compliance-engine/docs/AZURE_SCAN_TROUBLESHOOTING.md)
+
+## Analytics
+
+Product activation funnel (signup → paid) → **Analytics** in admin-ui (`GET /v1/admin/analytics/funnel`).

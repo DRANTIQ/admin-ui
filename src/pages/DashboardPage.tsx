@@ -47,6 +47,10 @@ export function DashboardPage() {
       </div>
 
       <p className="text-sm text-slate-400">
+        <Link to="/analytics" className="text-violet-400 hover:underline">
+          Product funnel analytics →
+        </Link>
+        {" · "}
         <Link to="/ops" className="text-violet-400 hover:underline">
           Triage failed scans in Ops →
         </Link>

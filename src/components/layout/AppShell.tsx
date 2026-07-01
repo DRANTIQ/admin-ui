@@ -28,6 +28,9 @@ export function AppShell() {
               <NavLink to="/" end className={navCls}>
                 Overview
               </NavLink>
+              <NavLink to="/analytics" className={navCls}>
+                Analytics
+              </NavLink>
               <NavLink to="/tenants" className={navCls}>
                 Tenants
               </NavLink>

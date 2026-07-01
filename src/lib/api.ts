@@ -6,6 +6,7 @@ import type {
   Integration,
   MeResponse,
   Membership,
+  ProductFunnel,
   Tenant,
 } from "../types/admin";
 
@@ -106,6 +107,10 @@ export function getMe(auth: AuthHeaders): Promise<MeResponse> {
 
 export function getAdminOverview(auth: AuthHeaders): Promise<AdminOverview> {
   return request(auth, "/v1/admin/overview");
+}
+
+export function getProductFunnel(auth: AuthHeaders): Promise<ProductFunnel> {
+  return request(auth, "/v1/admin/analytics/funnel");
 }
 
 export function listTenants(auth: AuthHeaders): Promise<Tenant[]> {
